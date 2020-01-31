@@ -54,18 +54,18 @@ INSERT INTO hosts (serviceName) VALUES --3d
 
 SELECT * FROM hosts; --testing
 
----------------------------Instruction 4 SeriesName/ServiceName-------------------
+---------------------------SeriesName/ServiceName-------------------
 
 SELECT seriesName, serviceName FROM series, hosts
 WHERE series.seriesID=hosts.seriesID;
 
----------------------------Instruction 5 All Series on 1 Platform-------------------
+---------------------------All Series on 1 Platform-------------------
 
 SELECT seriesName, serviceName FROM hosts,series 
 WHERE hosts.seriesID = series.seriesID 
 AND hosts.serviceName = 'Netflix';
 
----------------------------Instruction 6 cheapest service to "watch" something-------------------
+---------------------------Cheapest service to "watch" something-------------------
 --When you said streaming services, I didn't immediatly think watching, but spotify is the cheaper
 
 SELECT seriesName, cost FROM hosts,series,streamingServices 
@@ -74,13 +74,13 @@ AND streamingServices.serviceName = hosts.serviceName
 AND cost=(SELECT min(cost) FROM streamingServices);
 
 
----------------------------Instruction 7 Series with same startYear-------------------
+---------------------------Series with same startYear-------------------
 
 SELECT s1.seriesName, s2.seriesName, s2.startYear FROM series as s1, series as s2 
 WHERE s1.startYear=s2.startYear AND s1.seriesID < s2.seriesID;
 
 
----------------Instruction 8 Cartesion product of series and streamingServies-------------------
+---------------Cartesion product of series and streamingServies-------------------
 /*
 Cartesian Product of Series and Streaming Services  (12 Rows Series (6) times Streaming Services (2))
 
@@ -104,23 +104,8 @@ A,B = 	(1, Locked on Packers, 2017, 2038, Spotify, https://www.spotify,com/us/, 
 
 */
 
----------------------------Instruction 9 Average Length of each Service Series-------------------
+--------------------------Average Length of each Service Series-------------------
 
 SELECT streamingServices.serviceName, avg(series.endYear-series.startyear) FROM series,streamingServices,hosts
 WHERE hosts.seriesID=series.seriesID AND hosts.serviceName=streamingServices.serviceName
 GROUP BY streamingServices.serviceName;
-
-
-
-/* Instruction 0
-ERROR:  syntax error at or near "("
-LINE 19:  PRIMARY KEY (seriesID)
-                      ^
-********** Error **********
-
-ERROR: syntax error at or near "("
-SQL state: 42601
-Character: 430
-
-COMMENT: I forgot the comma on the line prior 
-*/
