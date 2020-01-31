@@ -41,21 +41,8 @@ DELETE FROM sentences WHERE sentence LIKE 'the quick brown%';
 
 ---------------------------------------------------------------------------------
 
---1. Code with a Syntax Error
-/*
-ERROR:  syntax error at or near "TEXT"
-LINE 50:  country TEXT);
-                  ^
-********** Error **********
 
-ERROR: syntax error at or near "TEXT"
-SQL state: 42601
-Character: 1477
-
-COMMENT: forgot to place a comma in my create table
-*/
-
---2. Two Tables with 2 attributes, one that is shared, one different, all joins
+--Two Tables with 2 attributes, one that is shared, one different, all joins
 	CREATE table T (
 	ID INTEGER,
 	country TEXT);
@@ -82,24 +69,24 @@ SELECT * FROM T LEFT OUTER JOIN R ON T.ID=R.ID;
 SELECT * FROM T RIGHT OUTER JOIN R ON T.ID=R.ID;
 SELECT * FROM T FULL OUTER JOIN R ON T.ID=R.ID;
 
---3. Query that shows the sentences that contain each letter using A,B
+--Query that shows the sentences that contain each letter using A,B
 SELECT sentences.sentence, letters.letter 
 FROM sentences, letters 
 WHERE sentence LIKE '%' || letter || '%'; 
 
---4. Left outer join that finds the alphabetically first sentence
+--Left outer join that finds the alphabetically first sentence
 SELECT a.sentence FROM sentences as A LEFT OUTER JOIN sentences as B 
 ON A.sentence > B.sentence WHERE B is null;  
 
---5. Query that shows letters that are not in a sentence
+--Query that shows letters that are not in a sentence
 SELECT * FROM letters as A LEFT OUTER JOIN (letters as B CROSS JOIN sentences) 
 ON sentence LIKE '%' || b.letter || '%' AND a.letter = b.letter WHERE b is null;
 
---6. Query that displays true if every letter is in atleast 1 sentence false otherwise
+--Query that displays true if every letter is in atleast 1 sentence false otherwise
 SELECT count(A)=0 FROM letters as A LEFT OUTER JOIN (sentences CROSS JOIN letters as B) 
 ON  A.letter = B.letter AND sentence LIKE '%'|| b.letter ||'%' WHERE sentence is NULL;
 
---7. Query that gives all sentences that don't have anything in common
+--Query that gives all sentences that don't have anything in common
 SELECT * FROM   (sentences as A CROSS JOIN sentences as B) LEFT OUTER JOIN letters
 ON  A.sentence LIKE '%' || letter || '%' AND B.sentence LIKE '%' || letter || '%' 
 WHERE letter is null AND A.sentence < B.sentence;
