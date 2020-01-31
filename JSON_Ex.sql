@@ -66,29 +66,11 @@ SELECT jsonb_array_elements(jsonb) FROM jsonbooks;
 
 SELECT jsonb_array_length(jsonb) FROM jsonbooks;
 
--- 1: Error provided ---------------------------------------------------------------------------------
-/*
-ERROR:  invalid input syntax for type json
-LINE 66: ...>>'title' FROM jsonbooks WHERE jsonb -> 'scope' = 'children'...
-                                                              ^
-DETAIL:  Token "children" is invalid.
-CONTEXT:  JSON data, line 1: children
-
-********** Error **********
-
-ERROR: invalid input syntax for type json
-SQL state: 22P02
-Detail: Token "children" is invalid.
-Character: 3335
-Context: JSON data, line 1: children
-
-*/
-
---2: Query that gets each book----------------------------------------------------------------------------
+--Query that gets each book----------------------------------------------------------------------------
 SELECT jsonb_array_elements(jsonb) as data FROM jsonbooks;
 SELECT data->'title' as title FROM (SELECT jsonb_array_elements(jsonb) as data FROM jsonbooks) as Split;
 
---3: Explain how data is denormalized (not in 3NF)--------------------------------------------------------
+--Explain how data is denormalized (not in 3NF)--------------------------------------------------------
 /*
 The data is not denormalized and can be shown because publishers are not related directly 
 to the books in a set of data. A book is dependent on a publisher, but a publisher can
@@ -97,22 +79,22 @@ An example is that a specific book isn't related at all to who founded or when t
 but the publisher is related to when the book was published and who wrote the book
 */
 
---4: Query that returns titles of all books written before 1980------------------------------------------
+--Query that returns titles of all books written before 1980------------------------------------------
 SELECT data->>'title' as title FROM (SELECT jsonb_array_elements(jsonb) as data FROM jsonbooks) as Split
 WHERE (data->'pubyear')::integer < 1980;
 
 
---5: Query that returns the titles of all books published by Alfred A. Knopf.----------------------------
+--Query that returns the titles of all books published by Alfred A. Knopf.----------------------------
 SELECT data->>'title' FROM (SELECT jsonb_array_elements(jsonb) as data FROM jsonbooks) as Split
 WHERE (data->>'publisher') LIKE 'alfred a. knopf';
 
---6: Query that returns titles of books and how long ago they were published-----------------------------
+--Query that returns titles of books and how long ago they were published-----------------------------
 -- for books published by publishers founded before 1900
 SELECT data->>'title' as Title, (EXTRACT (YEAR FROM now()) - (data->'pubyear')::integer) as Years_Ago
 FROM (SELECT jsonb_array_elements(jsonb) as data FROM jsonbooks) as Split WHERE
 EXTRACT (YEAR FROM((data->>'founded')::date)) < 1900;
 
---7: Query that returns the number of publishers with only one founder--------------------------------------
+--Query that returns the number of publishers with only one founder--------------------------------------
 SELECT count(distinct data->>'publisherName')
 FROM (SELECT jsonb_array_elements(jsonb) as data FROM jsonbooks) as Split
 WHERE jsonb_array_length(data->'founders') = 1;
